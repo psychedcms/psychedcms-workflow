@@ -27,30 +27,39 @@ services:
         arguments:
             $decorated: '@.inner'
 
-    # Workflow Actions (controllers) - must be public for API Platform
+    # Workflow Actions (controllers) - must be public and tagged for API Platform
     PsychedCms\Workflow\Action\GetWorkflowStateAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\SubmitForReviewAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\RequestChangesAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\ApproveAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\PublishAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\ScheduleAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\UnpublishAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\ArchiveAction:
         public: true
+        tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\RestoreAction:
         public: true
+        tags: ['controller.service_arguments']

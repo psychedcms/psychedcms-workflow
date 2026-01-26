@@ -131,6 +131,7 @@ final readonly class WorkflowOperationsResourceMetadataCollectionFactory impleme
     {
         $operations = iterator_to_array($resource->getOperations() ?? []);
         $uriTemplate = $this->getBaseUriTemplate($resource, $resourceClass);
+        $shortName = $resource->getShortName() ?? $this->getShortName($resourceClass);
 
         foreach (self::WORKFLOW_OPERATIONS as $operationName => $config) {
             $operationKey = sprintf('%s_%s', $this->getShortName($resourceClass), $operationName);
@@ -143,12 +144,14 @@ final readonly class WorkflowOperationsResourceMetadataCollectionFactory impleme
 
             $operations[$operationKey] = new $operationClass(
                 uriTemplate: $uriTemplate . $config['path'],
+                class: $resourceClass,
+                shortName: $shortName,
                 controller: $config['controller'],
                 name: $operationKey,
                 read: true,
                 deserialize: false,
                 validate: false,
-                write: false,
+                write: $config['method'] === 'POST',
                 openapi: new \ApiPlatform\OpenApi\Model\Operation(
                     summary: $config['openapi']['summary'],
                     description: $config['openapi']['description'],
