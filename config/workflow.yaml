@@ -1,0 +1,46 @@
+framework:
+    workflows:
+        content_publishing:
+            type: state_machine
+            audit_trail:
+                enabled: true
+            marking_store:
+                type: method
+                property: status
+            supports:
+                - PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface
+            initial_marking: draft
+            places:
+                - draft
+                - review
+                - scheduled
+                - published
+                - archived
+            transitions:
+                submit_for_review:
+                    from: draft
+                    to: review
+                request_changes:
+                    from: review
+                    to: draft
+                approve:
+                    from: review
+                    to: published
+                publish:
+                    from: [draft, review]
+                    to: published
+                schedule:
+                    from: [draft, review]
+                    to: scheduled
+                auto_publish:
+                    from: scheduled
+                    to: published
+                unpublish:
+                    from: published
+                    to: draft
+                archive:
+                    from: [draft, published]
+                    to: archived
+                restore:
+                    from: archived
+                    to: draft

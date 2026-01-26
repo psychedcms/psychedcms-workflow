@@ -1,0 +1,38 @@
+{
+    "name": "psychedcms/psychedcms-workflow",
+    "description": "Symfony Workflow integration for PsychedCMS - Content publishing lifecycle management",
+    "type": "symfony-bundle",
+    "license": "proprietary",
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.2",
+        "psychedcms/psychedcms-core": "^1.0 || @dev",
+        "symfony/config": "^7.4",
+        "symfony/dependency-injection": "^7.4",
+        "symfony/http-kernel": "^7.4",
+        "symfony/workflow": "^7.4"
+    },
+    "require-dev": {
+        "api-platform/core": "^4.0",
+        "doctrine/orm": "^3.0",
+        "phpunit/phpunit": "^10.0"
+    },
+    "suggest": {
+        "api-platform/core": "Required for automatic API workflow operations",
+        "doctrine/orm": "Required for workflow action persistence"
+    },
+    "autoload": {
+        "psr-4": {
+            "PsychedCms\\Workflow\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PsychedCms\\Workflow\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

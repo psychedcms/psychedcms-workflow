@@ -1,0 +1,56 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    PsychedCms\Workflow\:
+        resource: '../src/'
+        exclude:
+            - '../src/Exception/'
+            - '../src/PsychedCmsWorkflowBundle.php'
+
+    PsychedCms\Workflow\Service\ContentWorkflowService:
+        arguments:
+            $workflowRegistry: '@workflow.registry'
+
+    PsychedCms\Workflow\EventListener\WorkflowTransitionListener:
+        tags:
+            - { name: kernel.event_listener, event: workflow.content_publishing.completed.publish, method: onPublish }
+            - { name: kernel.event_listener, event: workflow.content_publishing.completed.approve, method: onPublish }
+            - { name: kernel.event_listener, event: workflow.content_publishing.completed.auto_publish, method: onPublish }
+            - { name: kernel.event_listener, event: workflow.content_publishing.completed.unpublish, method: onUnpublish }
+            - { name: kernel.event_listener, event: workflow.content_publishing.completed.archive, method: onArchive }
+            - { name: kernel.event_listener, event: workflow.content_publishing.completed.restore, method: onRestore }
+
+    PsychedCms\Workflow\ApiPlatform\WorkflowOperationsResourceMetadataCollectionFactory:
+        decorates: api_platform.metadata.resource.metadata_collection_factory
+        arguments:
+            $decorated: '@.inner'
+
+    # Workflow Actions (controllers) - must be public for API Platform
+    PsychedCms\Workflow\Action\GetWorkflowStateAction:
+        public: true
+
+    PsychedCms\Workflow\Action\SubmitForReviewAction:
+        public: true
+
+    PsychedCms\Workflow\Action\RequestChangesAction:
+        public: true
+
+    PsychedCms\Workflow\Action\ApproveAction:
+        public: true
+
+    PsychedCms\Workflow\Action\PublishAction:
+        public: true
+
+    PsychedCms\Workflow\Action\ScheduleAction:
+        public: true
+
+    PsychedCms\Workflow\Action\UnpublishAction:
+        public: true
+
+    PsychedCms\Workflow\Action\ArchiveAction:
+        public: true
+
+    PsychedCms\Workflow\Action\RestoreAction:
+        public: true
