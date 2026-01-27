@@ -18,6 +18,7 @@ use PsychedCms\Workflow\Action\RestoreAction;
 use PsychedCms\Workflow\Action\ScheduleAction;
 use PsychedCms\Workflow\Action\SubmitForReviewAction;
 use PsychedCms\Workflow\Action\UnpublishAction;
+use PsychedCms\Workflow\Action\UnscheduleAction;
 use PsychedCms\Workflow\Specification\IsPublicationWorkflowAware;
 
 final readonly class WorkflowOperationsResourceMetadataCollectionFactory implements ResourceMetadataCollectionFactoryInterface
@@ -75,6 +76,15 @@ final readonly class WorkflowOperationsResourceMetadataCollectionFactory impleme
             'openapi' => [
                 'summary' => 'Schedule',
                 'description' => 'Schedules the content for future publication.',
+            ],
+        ],
+        'unschedule' => [
+            'controller' => UnscheduleAction::class,
+            'method' => 'POST',
+            'path' => '/unschedule',
+            'openapi' => [
+                'summary' => 'Unschedule',
+                'description' => 'Cancels scheduled publication and returns content to draft.',
             ],
         ],
         'unpublish' => [
@@ -151,7 +161,7 @@ final readonly class WorkflowOperationsResourceMetadataCollectionFactory impleme
                 read: true,
                 deserialize: false,
                 validate: false,
-                write: $config['method'] === 'POST',
+                write: false,
                 openapi: new \ApiPlatform\OpenApi\Model\Operation(
                     summary: $config['openapi']['summary'],
                     description: $config['openapi']['description'],

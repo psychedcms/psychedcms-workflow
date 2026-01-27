@@ -7,7 +7,7 @@ namespace PsychedCms\Workflow\UseCase;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
 use PsychedCms\Workflow\Service\ContentWorkflowService;
 
-final readonly class AutoPublish
+final readonly class AutoPublish implements AutoPublishInterface
 {
     public function __construct(
         private ContentWorkflowService $workflowService,

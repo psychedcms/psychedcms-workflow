@@ -7,14 +7,17 @@ namespace PsychedCms\Workflow\Action;
 use Doctrine\ORM\EntityManagerInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
 use PsychedCms\Workflow\Service\ContentWorkflowService;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\SerializerInterface;
 
 abstract readonly class AbstractWorkflowAction
 {
     public function __construct(
         protected ContentWorkflowService $workflowService,
         protected EntityManagerInterface $entityManager,
+        protected SerializerInterface $serializer,
     ) {
     }
 
@@ -54,5 +57,12 @@ abstract readonly class AbstractWorkflowAction
         $this->entityManager->flush();
 
         return $content;
+    }
+
+    protected function createJsonLdResponse(PublicationWorkflowAwareInterface $content): JsonResponse
+    {
+        $json = $this->serializer->serialize($content, 'jsonld');
+
+        return new JsonResponse($json, JsonResponse::HTTP_OK, [], true);
     }
 }

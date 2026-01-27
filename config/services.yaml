@@ -7,11 +7,28 @@ services:
         resource: '../src/'
         exclude:
             - '../src/Exception/'
+            - '../src/Message/'
             - '../src/PsychedCmsWorkflowBundle.php'
+
+    # Scheduled Publishing
+    PsychedCms\Workflow\Repository\ScheduledPublicationRepositoryInterface:
+        alias: PsychedCms\Workflow\Repository\ScheduledPublicationRepository
+
+    PsychedCms\Workflow\Calendar\PublishContentEventHandler:
+        tags: ['psychedcms_calendar.event_handler']
+
+    PsychedCms\Workflow\Calendar\PublishContentEventType:
+        tags: ['psychedcms_calendar.event_type']
+
+    PsychedCms\Workflow\UseCase\AutoPublishInterface:
+        alias: PsychedCms\Workflow\UseCase\AutoPublish
 
     PsychedCms\Workflow\Service\ContentWorkflowService:
         arguments:
             $workflowRegistry: '@workflow.registry'
+
+    PsychedCms\Workflow\Service\ContentWorkflowServiceInterface:
+        alias: PsychedCms\Workflow\Service\ContentWorkflowService
 
     PsychedCms\Workflow\EventListener\WorkflowTransitionListener:
         tags:
@@ -49,6 +66,10 @@ services:
         tags: ['controller.service_arguments']
 
     PsychedCms\Workflow\Action\ScheduleAction:
+        public: true
+        tags: ['controller.service_arguments']
+
+    PsychedCms\Workflow\Action\UnscheduleAction:
         public: true
         tags: ['controller.service_arguments']
 

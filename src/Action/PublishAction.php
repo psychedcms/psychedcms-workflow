@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace PsychedCms\Workflow\Action;
 
-use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 final readonly class PublishAction extends AbstractWorkflowAction
 {
-    public function __invoke(Request $request): PublicationWorkflowAwareInterface
+    public function __invoke(Request $request): JsonResponse
     {
-        return $this->applyTransitionAndPersist($this->getEntityFromRequest($request), 'publish');
+        $content = $this->applyTransitionAndPersist($this->getEntityFromRequest($request), 'publish');
+
+        return $this->createJsonLdResponse($content);
     }
 }

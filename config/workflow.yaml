@@ -32,6 +32,9 @@ framework:
                 schedule:
                     from: [draft, review]
                     to: scheduled
+                unschedule:
+                    from: scheduled
+                    to: draft
                 auto_publish:
                     from: scheduled
                     to: published

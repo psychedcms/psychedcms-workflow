@@ -7,10 +7,14 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.2",
+        "psychedcms/psychedcms-calendar": "^1.0 || @dev",
         "psychedcms/psychedcms-core": "^1.0 || @dev",
         "symfony/config": "^7.4",
+        "symfony/console": "^7.4",
         "symfony/dependency-injection": "^7.4",
         "symfony/http-kernel": "^7.4",
+        "symfony/messenger": "^7.4",
+        "symfony/scheduler": "^7.4",
         "symfony/workflow": "^7.4"
     },
     "require-dev": {

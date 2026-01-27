@@ -10,7 +10,7 @@ use PsychedCms\Workflow\Exception\TransitionBlockedException;
 use Symfony\Component\Workflow\Exception\NotEnabledTransitionException;
 use Symfony\Component\Workflow\Registry;
 
-final class ContentWorkflowService
+final class ContentWorkflowService implements ContentWorkflowServiceInterface
 {
     private const WORKFLOW_NAME = 'content_publishing';
 
