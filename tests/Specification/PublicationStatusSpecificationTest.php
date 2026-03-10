@@ -7,6 +7,7 @@ namespace PsychedCms\Workflow\Tests\Specification;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use PsychedCms\Core\Content\ContentTrait;
+use PsychedCms\Core\Content\UserInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowTrait;
 use PsychedCms\Workflow\Specification\IsArchived;
@@ -137,7 +138,7 @@ final class PublicationStatusSpecificationTest extends TestCase
             use ContentTrait;
             use PublicationWorkflowTrait;
 
-            public function getAuthor(): ?object
+            public function getAuthor(): ?UserInterface
             {
                 return null;
             }

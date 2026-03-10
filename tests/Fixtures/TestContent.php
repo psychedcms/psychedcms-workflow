@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PsychedCms\Workflow\Tests\Fixtures;
 
 use DateTimeImmutable;
+use PsychedCms\Core\Content\UserInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
 
 class TestContent implements PublicationWorkflowAwareInterface
@@ -76,7 +77,7 @@ class TestContent implements PublicationWorkflowAwareInterface
         return $this->updatedAt;
     }
 
-    public function getAuthor(): ?object
+    public function getAuthor(): ?UserInterface
     {
         return null;
     }

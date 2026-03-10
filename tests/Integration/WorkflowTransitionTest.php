@@ -6,6 +6,7 @@ namespace PsychedCms\Workflow\Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use PsychedCms\Core\Content\ContentTrait;
+use PsychedCms\Core\Content\UserInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowTrait;
 use PsychedCms\Workflow\Service\ContentWorkflowService;
@@ -199,7 +200,7 @@ final class WorkflowTransitionTest extends TestCase
             use ContentTrait;
             use PublicationWorkflowTrait;
 
-            public function getAuthor(): ?object
+            public function getAuthor(): ?UserInterface
             {
                 return null;
             }
