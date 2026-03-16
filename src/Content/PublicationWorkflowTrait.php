@@ -7,6 +7,8 @@ namespace PsychedCms\Workflow\Content;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use PsychedCms\Core\Attribute\Field\DateField;
+use PsychedCms\Core\Attribute\Field\SelectField;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -17,14 +19,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 trait PublicationWorkflowTrait
 {
     #[ORM\Column(length: 32)]
+    #[SelectField(label: 'Status', values: ['draft', 'review', 'scheduled', 'published', 'archived'], group: 'meta')]
     #[Groups(['content:read', 'content:write'])]
     private string $status = 'draft';
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[DateField(label: 'Published at', mode: 'datetime', group: 'meta')]
     #[Groups(['content:read'])]
     private ?DateTimeImmutable $publishedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[DateField(label: 'Depublished at', mode: 'datetime', group: 'meta')]
     #[Groups(['content:read'])]
     private ?DateTimeImmutable $depublishedAt = null;
 
