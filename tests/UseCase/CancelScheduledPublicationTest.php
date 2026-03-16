@@ -36,15 +36,16 @@ class CancelScheduledPublicationTest extends TestCase
 
     public function testExecuteRemovesEventAndAppliesTransition(): void
     {
-        $content = new TestContent(1);
+        $content = new TestContent();
+        $contentId = (string) $content->getId();
         $content->setPublishedAt(new DateTimeImmutable('+1 day'));
 
-        $existingEvent = new PublishContentEvent(TestContent::class, 1, new DateTimeImmutable('+1 day'));
+        $existingEvent = new PublishContentEvent(TestContent::class, $contentId, new DateTimeImmutable('+1 day'));
 
         $this->repository
             ->expects($this->once())
             ->method('findByTarget')
-            ->with(TestContent::class, 1)
+            ->with(TestContent::class, $this->callback(fn($id) => (string) $id === $contentId))
             ->willReturn($existingEvent);
 
         $this->entityManager
@@ -64,13 +65,14 @@ class CancelScheduledPublicationTest extends TestCase
 
     public function testExecuteHandlesNoExistingEvent(): void
     {
-        $content = new TestContent(1);
+        $content = new TestContent();
+        $contentId = (string) $content->getId();
         $content->setPublishedAt(new DateTimeImmutable('+1 day'));
 
         $this->repository
             ->expects($this->once())
             ->method('findByTarget')
-            ->with(TestContent::class, 1)
+            ->with(TestContent::class, $this->callback(fn($id) => (string) $id === $contentId))
             ->willReturn(null);
 
         $this->entityManager
@@ -89,7 +91,7 @@ class CancelScheduledPublicationTest extends TestCase
 
     public function testExecuteReturnsEarlyForUnpersistedContent(): void
     {
-        $content = new TestContent(null);
+        $content = new TestContent(null, false);
 
         $this->repository
             ->expects($this->never())

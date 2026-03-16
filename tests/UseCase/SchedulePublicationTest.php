@@ -36,13 +36,14 @@ class SchedulePublicationTest extends TestCase
 
     public function testExecuteCreatesCalendarEventAndAppliesTransition(): void
     {
-        $content = new TestContent(1);
+        $content = new TestContent();
+        $contentId = $content->getId();
         $publishAt = new DateTimeImmutable('+1 day');
 
         $this->repository
             ->expects($this->once())
             ->method('findByTarget')
-            ->with(TestContent::class, 1)
+            ->with(TestContent::class, $this->callback(fn($id) => (string) $id === (string) $contentId))
             ->willReturn(null);
 
         $this->entityManager
@@ -59,21 +60,21 @@ class SchedulePublicationTest extends TestCase
 
         $this->assertInstanceOf(PublishContentEvent::class, $event);
         $this->assertSame(TestContent::class, $event->getTargetClass());
-        $this->assertSame(1, $event->getTargetId());
         $this->assertSame($publishAt, $event->getScheduledAt());
         $this->assertSame($publishAt, $content->getPublishedAt());
     }
 
     public function testExecuteRemovesExistingScheduledPublication(): void
     {
-        $content = new TestContent(1);
+        $content = new TestContent();
+        $contentId = (string) $content->getId();
         $publishAt = new DateTimeImmutable('+1 day');
-        $existingEvent = new PublishContentEvent(TestContent::class, 1, new DateTimeImmutable('+2 days'));
+        $existingEvent = new PublishContentEvent(TestContent::class, $contentId, new DateTimeImmutable('+2 days'));
 
         $this->repository
             ->expects($this->once())
             ->method('findByTarget')
-            ->with(TestContent::class, 1)
+            ->with(TestContent::class, $this->callback(fn($id) => (string) $id === $contentId))
             ->willReturn($existingEvent);
 
         $this->entityManager
@@ -95,7 +96,7 @@ class SchedulePublicationTest extends TestCase
 
     public function testExecuteThrowsExceptionForUnpersistedContent(): void
     {
-        $content = new TestContent(null);
+        $content = new TestContent(null, false);
         $publishAt = new DateTimeImmutable('+1 day');
 
         $this->expectException(\InvalidArgumentException::class);

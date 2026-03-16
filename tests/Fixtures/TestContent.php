@@ -6,10 +6,11 @@ namespace PsychedCms\Workflow\Tests\Fixtures;
 
 use DateTimeImmutable;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
+use Symfony\Component\Uid\Ulid;
 
 class TestContent implements PublicationWorkflowAwareInterface
 {
-    private ?int $id;
+    private ?Ulid $id;
     private string $status = 'draft';
     private ?DateTimeImmutable $publishedAt = null;
     private ?DateTimeImmutable $depublishedAt = null;
@@ -17,13 +18,13 @@ class TestContent implements PublicationWorkflowAwareInterface
     private ?DateTimeImmutable $createdAt = null;
     private ?DateTimeImmutable $updatedAt = null;
 
-    public function __construct(?int $id = null)
+    public function __construct(?Ulid $id = null, bool $generateId = true)
     {
-        $this->id = $id;
+        $this->id = $id ?? ($generateId ? new Ulid() : null);
         $this->createdAt = new DateTimeImmutable();
     }
 
-    public function getId(): ?int
+    public function getId(): ?Ulid
     {
         return $this->id;
     }

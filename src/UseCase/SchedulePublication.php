@@ -32,14 +32,16 @@ final readonly class SchedulePublication
             throw new \InvalidArgumentException('Content must be persisted before scheduling publication.');
         }
 
+        $idString = (string) $contentId;
+
         // Remove existing scheduled publication for this content
-        $existing = $this->repository->findByTarget($content::class, $contentId);
+        $existing = $this->repository->findByTarget($content::class, $idString);
         if ($existing !== null) {
             $this->entityManager->remove($existing);
         }
 
         // Create new calendar event
-        $event = new PublishContentEvent($content::class, $contentId, $publishAt);
+        $event = new PublishContentEvent($content::class, $idString, $publishAt);
         $this->entityManager->persist($event);
 
         // Apply workflow transition (publishedAt stays empty until actual publication)

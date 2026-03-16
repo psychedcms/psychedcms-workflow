@@ -29,7 +29,7 @@ final readonly class CancelScheduledPublication
         }
 
         // Remove the scheduled publication event
-        $existing = $this->repository->findByTarget($content::class, $contentId);
+        $existing = $this->repository->findByTarget($content::class, (string) $contentId);
         if ($existing !== null) {
             $this->entityManager->remove($existing);
         }

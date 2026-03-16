@@ -7,6 +7,7 @@ namespace PsychedCms\Workflow\Content;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * Provides the status marking store and publication timestamps for the content publishing workflow.
@@ -16,12 +17,15 @@ use Doctrine\ORM\Mapping as ORM;
 trait PublicationWorkflowTrait
 {
     #[ORM\Column(length: 32)]
+    #[Groups(['content:read', 'content:write'])]
     private string $status = 'draft';
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['content:read'])]
     private ?DateTimeImmutable $publishedAt = null;
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups(['content:read'])]
     private ?DateTimeImmutable $depublishedAt = null;
 
     public function getStatus(): string
