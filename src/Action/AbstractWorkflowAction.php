@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace PsychedCms\Workflow\Action;
 
 use Doctrine\ORM\EntityManagerInterface;
+use PsychedCms\Auth\Content\AuthorAwareInterface;
 use PsychedCms\Workflow\Content\PublicationWorkflowAwareInterface;
 use PsychedCms\Workflow\Service\ContentWorkflowService;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\SerializerInterface;
 
@@ -18,6 +21,7 @@ abstract readonly class AbstractWorkflowAction
         protected ContentWorkflowService $workflowService,
         protected EntityManagerInterface $entityManager,
         protected SerializerInterface $serializer,
+        protected Security $security,
     ) {
     }
 
@@ -46,7 +50,22 @@ abstract readonly class AbstractWorkflowAction
             throw new NotFoundHttpException('Resource not found or does not support workflow.');
         }
 
+        $this->denyAccessUnlessOwnerOrAdmin($entity);
+
         return $entity;
+    }
+
+    private function denyAccessUnlessOwnerOrAdmin(PublicationWorkflowAwareInterface $entity): void
+    {
+        if ($this->security->isGranted('PERMISSION_CONTENT_EDIT_ALL')) {
+            return;
+        }
+
+        if ($entity instanceof AuthorAwareInterface && $entity->getAuthor() === $this->security->getUser()) {
+            return;
+        }
+
+        throw new AccessDeniedHttpException('Access denied.');
     }
 
     protected function applyTransitionAndPersist(

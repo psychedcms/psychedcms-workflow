@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace PsychedCms\Workflow\ApiPlatform;
 
 use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\HttpOperation;
+use ApiPlatform\Metadata\Link;
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\Metadata\Resource\ResourceMetadataCollection;
 use PsychedCms\Workflow\Action\ApproveAction;
 use PsychedCms\Workflow\Action\ArchiveAction;
-use PsychedCms\Workflow\Action\GetWorkflowStateAction;
 use PsychedCms\Workflow\Action\PublishAction;
 use PsychedCms\Workflow\Action\RequestChangesAction;
 use PsychedCms\Workflow\Action\RestoreAction;
@@ -24,15 +23,8 @@ use PsychedCms\Workflow\Specification\IsPublicationWorkflowAware;
 final readonly class WorkflowOperationsResourceMetadataCollectionFactory implements ResourceMetadataCollectionFactoryInterface
 {
     private const WORKFLOW_OPERATIONS = [
-        'workflow_state' => [
-            'controller' => GetWorkflowStateAction::class,
-            'method' => 'GET',
-            'path' => '/workflow-state',
-            'openapi' => [
-                'summary' => 'Get workflow state',
-                'description' => 'Returns the current workflow place and available transitions.',
-            ],
-        ],
+        // workflow_state GET removed — state is derived from record.status
+        // + x-psychedcms workflow transition map in the schema
         'submit_for_review' => [
             'controller' => SubmitForReviewAction::class,
             'method' => 'POST',
@@ -150,18 +142,23 @@ final readonly class WorkflowOperationsResourceMetadataCollectionFactory impleme
                 continue;
             }
 
-            $operationClass = $config['method'] === 'GET' ? Get::class : Post::class;
-
-            $operations[$operationKey] = new $operationClass(
+            // Use HttpOperation (not Get/Post) to avoid interfering with IRI generation.
+            // API Platform uses Get operations to resolve entity IRIs, so workflow
+            // operations must not be Get instances.
+            $operations[$operationKey] = new HttpOperation(
+                method: $config['method'],
                 uriTemplate: $uriTemplate . $config['path'],
+                uriVariables: ['id' => new Link(fromClass: $resourceClass, parameterName: 'id')],
                 class: $resourceClass,
                 shortName: $shortName,
                 controller: $config['controller'],
                 name: $operationKey,
-                read: true,
+                read: false,
                 deserialize: false,
                 validate: false,
                 write: false,
+                security: 'is_granted("PERMISSION_CONTENT_WORKFLOW")',
+                provider: PsychedCms\Workflow\Action\GetWorkflowStateAction::class,
                 openapi: new \ApiPlatform\OpenApi\Model\Operation(
                     summary: $config['openapi']['summary'],
                     description: $config['openapi']['description'],
@@ -169,7 +166,17 @@ final readonly class WorkflowOperationsResourceMetadataCollectionFactory impleme
             );
         }
 
-        return $resource->withOperations(new \ApiPlatform\Metadata\Operations($operations));
+        // Ensure standard CRUD operations come before workflow operations for IRI resolution
+        $standard = [];
+        $workflow = [];
+        foreach ($operations as $key => $op) {
+            if (str_contains($key, '_workflow_') || str_contains($key, '_submit_') || str_contains($key, '_request_') || str_contains($key, '_approve') || str_contains($key, '_publish') || str_contains($key, '_schedule') || str_contains($key, '_unschedule') || str_contains($key, '_unpublish') || str_contains($key, '_archive') || str_contains($key, '_restore')) {
+                $workflow[$key] = $op;
+            } else {
+                $standard[$key] = $op;
+            }
+        }
+        return $resource->withOperations(new \ApiPlatform\Metadata\Operations(array_merge($standard, $workflow)));
     }
 
     private function getBaseUriTemplate(ApiResource $resource, string $resourceClass): string

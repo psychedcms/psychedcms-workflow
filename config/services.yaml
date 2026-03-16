@@ -10,6 +10,11 @@ services:
             - '../src/Message/'
             - '../src/PsychedCmsWorkflowBundle.php'
 
+    PsychedCms\Workflow\ApiPlatform\WorkflowOperationsResourceMetadataCollectionFactory:
+        decorates: api_platform.metadata.resource.metadata_collection_factory
+        arguments:
+            $decorated: '@.inner'
+
     # Scheduled Publishing
     PsychedCms\Workflow\Repository\ScheduledPublicationRepositoryInterface:
         alias: PsychedCms\Workflow\Repository\ScheduledPublicationRepository
@@ -27,6 +32,13 @@ services:
         arguments:
             $workflowRegistry: '@workflow.registry'
 
+    PsychedCms\Workflow\OpenApi\WorkflowSchemaFactory:
+        decorates: 'api_platform.json_schema.schema_factory'
+        decoration_priority: 5
+        arguments:
+            $decorated: '@.inner'
+            $workflowRegistry: '@workflow.registry'
+
     PsychedCms\Workflow\Service\ContentWorkflowServiceInterface:
         alias: PsychedCms\Workflow\Service\ContentWorkflowService
 
@@ -38,11 +50,6 @@ services:
             - { name: kernel.event_listener, event: workflow.content_publishing.completed.unpublish, method: onUnpublish }
             - { name: kernel.event_listener, event: workflow.content_publishing.completed.archive, method: onArchive }
             - { name: kernel.event_listener, event: workflow.content_publishing.completed.restore, method: onRestore }
-
-    PsychedCms\Workflow\ApiPlatform\WorkflowOperationsResourceMetadataCollectionFactory:
-        decorates: api_platform.metadata.resource.metadata_collection_factory
-        arguments:
-            $decorated: '@.inner'
 
     # Workflow Actions (controllers) - must be public and tagged for API Platform
     PsychedCms\Workflow\Action\GetWorkflowStateAction:
