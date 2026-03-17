@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PsychedCms\Workflow\Content;
 
 use DateTimeImmutable;
-use PsychedCms\Core\Content\ContentInterface;
+use PsychedCms\Core\Content\EntityInterface;
 
-interface PublicationWorkflowAwareInterface extends ContentInterface
+interface PublicationWorkflowAwareInterface extends EntityInterface
 {
     public function getStatus(): string;
 
