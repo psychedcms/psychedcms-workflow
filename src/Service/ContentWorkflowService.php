@@ -52,7 +52,7 @@ final class ContentWorkflowService implements ContentWorkflowServiceInterface
      * @throws InvalidTransitionException When the transition is not available
      * @throws TransitionBlockedException When a guard blocks the transition
      */
-    public function applyTransition(PublicationWorkflowAwareInterface $content, string $transitionName): void
+    public function applyTransition(PublicationWorkflowAwareInterface $content, string $transitionName, array $context = []): void
     {
         $workflow = $this->workflowRegistry->get($content, self::WORKFLOW_NAME);
         $currentPlace = $content->getStatus();

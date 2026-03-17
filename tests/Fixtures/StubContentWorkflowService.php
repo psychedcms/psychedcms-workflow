@@ -11,7 +11,7 @@ class StubContentWorkflowService
     /** @var array<array{content: PublicationWorkflowAwareInterface, transition: string}> */
     public array $appliedTransitions = [];
 
-    public function applyTransition(PublicationWorkflowAwareInterface $content, string $transitionName): void
+    public function applyTransition(PublicationWorkflowAwareInterface $content, string $transitionName, array $context = []): void
     {
         $this->appliedTransitions[] = ['content' => $content, 'transition' => $transitionName];
     }

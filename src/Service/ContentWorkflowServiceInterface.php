@@ -20,8 +20,10 @@ interface ContentWorkflowServiceInterface
 
     /**
      * Apply a transition to a content entity.
+     *
+     * @param array<string, mixed> $context Optional context data (e.g. scheduledAt for schedule transition)
      */
-    public function applyTransition(PublicationWorkflowAwareInterface $content, string $transitionName): void;
+    public function applyTransition(PublicationWorkflowAwareInterface $content, string $transitionName, array $context = []): void;
 
     /**
      * Check if a transition can be applied to a content entity.
