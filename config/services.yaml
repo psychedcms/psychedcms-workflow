@@ -42,6 +42,10 @@ services:
     PsychedCms\Workflow\Service\ContentWorkflowServiceInterface:
         alias: PsychedCms\Workflow\Service\ContentWorkflowService
 
+    PsychedCms\Workflow\EventListener\WorkflowGuardListener:
+        tags:
+            - { name: kernel.event_listener, event: workflow.content_publishing.guard, method: onGuard }
+
     PsychedCms\Workflow\EventListener\WorkflowTransitionListener:
         tags:
             - { name: kernel.event_listener, event: workflow.content_publishing.completed.publish, method: onPublish }
