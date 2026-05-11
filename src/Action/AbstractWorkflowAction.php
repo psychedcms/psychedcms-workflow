@@ -44,7 +44,8 @@ abstract readonly class AbstractWorkflowAction
             throw new NotFoundHttpException('Resource not found or does not support workflow.');
         }
 
-        $entity = $this->entityManager->find($resourceClass, $id);
+        $entity = $this->entityManager->getRepository($resourceClass)->findOneBy(['slug' => $id])
+            ?? $this->entityManager->find($resourceClass, $id);
 
         if (!$entity instanceof PublicationWorkflowAwareInterface) {
             throw new NotFoundHttpException('Resource not found or does not support workflow.');
