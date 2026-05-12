@@ -43,16 +43,20 @@ final class WorkflowGuardListener
         $subject = $event->getSubject();
         $violations = $this->validator->validate($subject, null, $groups);
 
-        if ($violations->count() > 0) {
-            $messages = [];
-            foreach ($violations as $violation) {
-                $messages[] = sprintf('%s: %s', $violation->getPropertyPath(), $violation->getMessage());
-            }
-
+        // One blocker per violation: the API layer renders them as a
+        // ConstraintViolationList-shaped payload (one entry per field) instead
+        // of swallowing every violation into a single "transition not available"
+        // 500. Keeping the property path in the blocker `parameters` lets the
+        // frontend bind each error to its own form field.
+        foreach ($violations as $violation) {
             $event->addTransitionBlocker(
                 new \Symfony\Component\Workflow\TransitionBlocker(
-                    implode('; ', $messages),
-                    'validation_failed'
+                    sprintf('%s: %s', $violation->getPropertyPath(), $violation->getMessage()),
+                    'validation_failed',
+                    [
+                        'property_path' => $violation->getPropertyPath(),
+                        'message' => (string) $violation->getMessage(),
+                    ],
                 )
             );
         }

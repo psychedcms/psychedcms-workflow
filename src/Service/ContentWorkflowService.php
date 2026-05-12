@@ -63,6 +63,45 @@ final class ContentWorkflowService implements ContentWorkflowServiceInterface
         );
 
         if (!$workflow->can($content, $transitionName)) {
+            // Distinguish two failure modes:
+            // - guard blockers (validation listener, ACL, …) → 422 with
+            //   per-field violations,
+            // - genuine wrong-marking (transition exists but the entity is
+            //   in an incompatible place) → 400 "transition not available".
+            //
+            // Symfony's StateMachine attaches a BLOCKED_BY_MARKING blocker on
+            // every misaddressed transition; filtering that out leaves only
+            // the guard-originated reasons.
+            $blockerList = $workflow->buildTransitionBlockerList($content, $transitionName);
+            $blockerReasons = [];
+            $violations = [];
+            foreach ($blockerList as $blocker) {
+                if ($blocker->getCode() === \Symfony\Component\Workflow\TransitionBlocker::BLOCKED_BY_MARKING) {
+                    continue;
+                }
+                $blockerReasons[] = $blocker->getMessage();
+                $params = $blocker->getParameters();
+                if (isset($params['property_path'], $params['message'])
+                    && \is_string($params['property_path'])
+                    && \is_string($params['message'])
+                ) {
+                    $violations[] = [
+                        'property_path' => $params['property_path'],
+                        'message' => $params['message'],
+                    ];
+                }
+            }
+
+            if ($blockerReasons !== []) {
+                throw new TransitionBlockedException(
+                    $transitionName,
+                    $currentPlace,
+                    $blockerReasons,
+                    null,
+                    $violations,
+                );
+            }
+
             throw new InvalidTransitionException(
                 $transitionName,
                 $currentPlace,
@@ -74,15 +113,27 @@ final class ContentWorkflowService implements ContentWorkflowServiceInterface
             $workflow->apply($content, $transitionName);
         } catch (NotEnabledTransitionException $e) {
             $blockerReasons = [];
+            $violations = [];
             foreach ($e->getTransitionBlockerList() as $blocker) {
                 $blockerReasons[] = $blocker->getMessage();
+                $params = $blocker->getParameters();
+                if (isset($params['property_path'], $params['message'])
+                    && \is_string($params['property_path'])
+                    && \is_string($params['message'])
+                ) {
+                    $violations[] = [
+                        'property_path' => $params['property_path'],
+                        'message' => $params['message'],
+                    ];
+                }
             }
 
             throw new TransitionBlockedException(
                 $transitionName,
                 $currentPlace,
                 $blockerReasons,
-                $e
+                $e,
+                $violations,
             );
         }
     }
